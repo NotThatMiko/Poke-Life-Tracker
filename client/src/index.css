@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,45 +6,45 @@
 
 @layer base {
   :root {
-    /* Cute Pastel Palette */
-    --background: 40 33% 96%; /* Creamy off-white */
-    --foreground: 240 10% 20%; /* Soft charcoal */
+    /* Space Theme Palette */
+    --background: 260 75% 11%; /* Deep Space Purple #1a0731 */
+    --foreground: 280 40% 95%; /* Soft Pinkish White */
     
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 20%;
+    --card: 260 60% 15%; /* Darker Purple for Cards */
+    --card-foreground: 280 40% 95%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 20%;
+    --popover: 260 60% 15%;
+    --popover-foreground: 280 40% 95%;
     
-    --primary: 346 80% 65%; /* Cute Pink */
-    --primary-foreground: 0 0% 100%;
+    --primary: 290 80% 70%; /* Mew Pink */
+    --primary-foreground: 260 75% 11%;
     
-    --secondary: 198 70% 60%; /* Pastel Blue */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 170 70% 50%; /* Rayquaza Cyan/Green */
+    --secondary-foreground: 260 75% 11%;
     
-    --muted: 40 20% 90%;
-    --muted-foreground: 240 5% 40%;
+    --muted: 260 40% 25%;
+    --muted-foreground: 280 20% 70%;
     
-    --accent: 142 60% 60%; /* Pastel Green */
-    --accent-foreground: 240 10% 20%;
+    --accent: 290 100% 80%; /* Neon Glow Pink */
+    --accent-foreground: 260 75% 11%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 20%; /* Dark borders for pixel look */
-    --input: 240 10% 20%;
-    --ring: 346 80% 65%;
+    --border: 280 40% 30%;
+    --input: 280 40% 30%;
+    --ring: 290 80% 70%;
 
-    --radius: 0px; /* Sharp corners for retro feel */
+    --radius: 0px;
     
-    --font-display: 'Silkscreen', cursive;
+    --font-display: 'Press Start 2P', cursive;
     --font-body: 'VT323', monospace;
 
-    /* Custom Retro Shadows */
-    --pixel-shadow-sm: 2px 2px 0px 0px hsl(var(--border));
-    --pixel-shadow-md: 4px 4px 0px 0px hsl(var(--border));
-    --pixel-shadow-lg: 6px 6px 0px 0px hsl(var(--border));
-    --pixel-shadow-hover: 2px 2px 0px 0px hsl(var(--border));
+    /* Space Glow Shadows */
+    --pixel-shadow-sm: 2px 2px 0px 0px hsl(var(--primary) / 0.3);
+    --pixel-shadow-md: 4px 4px 0px 0px hsl(var(--primary) / 0.4);
+    --pixel-shadow-lg: 0px 0px 15px 0px hsl(var(--primary) / 0.5);
+    --pixel-shadow-hover: 0px 0px 20px 0px hsl(var(--accent) / 0.6);
   }
 
   * {
@@ -55,13 +55,17 @@
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
     font-size: 1.25rem;
-    background-image: radial-gradient(hsl(var(--muted-foreground) / 0.15) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: 
+      radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, hsl(var(--secondary) / 0.05) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v1h-1v-1h1zm0-1h1v1h-1v-1zm10 25v1h-1v-1h1zm0-1h1v1h-1v-1zM5 20v1H4v-1h1zm0-1h1v1H5v-1zM2 5v1H1V5h1zm0-1h1v1H2v-1zM30 30v1h-1v-1h1zm0-1h1v1h-1v-1z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: -1px;
   }
 }
 
@@ -75,9 +79,9 @@
   }
 
   .pixel-box {
-    @apply border-4 border-border bg-card;
+    @apply border-4 border-primary/30 bg-card/80 backdrop-blur-sm;
     box-shadow: var(--pixel-shadow-md);
-    transition: all 0.1s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .pixel-box-interactive {
@@ -85,47 +89,51 @@
   }
 
   .pixel-box-interactive:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--pixel-shadow-lg);
-  }
-
-  .pixel-box-interactive:active {
-    transform: translate(2px, 2px);
-    box-shadow: var(--pixel-shadow-sm);
+    @apply border-primary/60;
+    box-shadow: var(--pixel-shadow-hover);
+    transform: translateY(-2px);
   }
 
   .pixel-button {
-    @apply px-4 py-2 border-4 border-border font-display text-sm md:text-base cursor-pointer select-none active:outline-none;
+    @apply px-4 py-2 border-4 border-primary/50 font-display text-[10px] md:text-xs cursor-pointer select-none active:outline-none uppercase;
+    background-color: hsl(var(--card));
     box-shadow: var(--pixel-shadow-md);
-    transition: all 0.1s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .pixel-button:hover:not(:disabled) {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--pixel-shadow-lg);
-    filter: brightness(1.1);
+    @apply border-accent bg-primary/20;
+    box-shadow: var(--pixel-shadow-hover);
+    transform: translateY(-2px);
   }
 
   .pixel-button:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: var(--pixel-shadow-sm);
-  }
-
-  .pixel-button:disabled {
-    @apply opacity-50 cursor-not-allowed;
-    box-shadow: var(--pixel-shadow-sm);
-    transform: translate(2px, 2px);
+    transform: translateY(2px);
+    box-shadow: none;
   }
 
   .pixel-input {
-    @apply w-full px-4 py-3 border-4 border-border bg-white text-foreground font-body text-xl placeholder:text-muted-foreground focus:outline-none;
-    box-shadow: inset 4px 4px 0px 0px hsl(var(--muted) / 0.5);
+    @apply w-full px-4 py-3 border-4 border-primary/30 bg-card/50 text-foreground font-body text-xl placeholder:text-muted-foreground focus:outline-none;
+    box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.3);
   }
   
   .pixel-input:focus {
-    @apply border-primary;
-    box-shadow: inset 4px 4px 0px 0px hsl(var(--primary) / 0.1);
+    @apply border-accent;
   }
+
+  .glow-text {
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.3);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
 /* Custom Checkbox Animation */
