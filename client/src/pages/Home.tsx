@@ -34,14 +34,14 @@ export default function Home() {
                 Space Missions
               </h1>
               <p className="font-body text-2xl text-secondary mt-2 uppercase tracking-widest">
-                Explore the Galaxy of Habits
+                Lighting speed habit tracker
               </p>
             </div>
           </div>
 
           <button 
             onClick={() => setIsCreateOpen(true)}
-            className="pixel-button bg-secondary text-secondary-foreground flex items-center gap-3 text-lg px-8 py-4 whitespace-nowrap"
+            className="pixel-button bg-transparent border-primary text-foreground flex items-center gap-3 text-lg px-8 py-4 whitespace-nowrap glow-text"
           >
             <Plus className="w-6 h-6 stroke-[4]" />
             <span>New Mission</span>
@@ -66,8 +66,7 @@ export default function Home() {
                 <div className="w-32 h-32 bg-card border-4 border-primary/50 flex items-center justify-center shadow-2xl rounded-full overflow-hidden">
                   <PixelSword className="w-16 h-16 text-secondary" />
                 </div>
-                <div className="absolute -top-4 -right-4 text-5xl">⭐</div>
-                <div className="absolute -bottom-4 -left-4 text-5xl">☁️</div>
+                <div className="absolute -top-4 -right-4 text-5xl">☁️</div>
               </div>
               
               <div className="space-y-4 max-w-lg">
