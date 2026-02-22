@@ -1,38 +1,76 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  habits,
+  habitLogs,
+  type Habit,
+  type HabitLog,
+  type CreateHabitRequest,
+  type UpdateHabitRequest,
+  type ToggleHabitLogRequest
+} from "@shared/schema";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getHabits(): Promise<Habit[]>;
+  getHabit(id: number): Promise<Habit | undefined>;
+  createHabit(habit: CreateHabitRequest): Promise<Habit>;
+  updateHabit(id: number, updates: UpdateHabitRequest): Promise<Habit>;
+  deleteHabit(id: number): Promise<void>;
+  
+  getHabitLogs(habitId: number): Promise<HabitLog[]>;
+  toggleHabitLog(habitId: number, date: string, completed: boolean): Promise<HabitLog>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getHabits(): Promise<Habit[]> {
+    return await db.select().from(habits);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getHabit(id: number): Promise<Habit | undefined> {
+    const [habit] = await db.select().from(habits).where(eq(habits.id, id));
+    return habit;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createHabit(habit: CreateHabitRequest): Promise<Habit> {
+    const [newHabit] = await db.insert(habits).values(habit).returning();
+    return newHabit;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async updateHabit(id: number, updates: UpdateHabitRequest): Promise<Habit> {
+    const [updated] = await db.update(habits).set(updates).where(eq(habits.id, id)).returning();
+    return updated;
+  }
+
+  async deleteHabit(id: number): Promise<void> {
+    await db.delete(habitLogs).where(eq(habitLogs.habitId, id)); // delete logs first
+    await db.delete(habits).where(eq(habits.id, id));
+  }
+
+  async getHabitLogs(habitId: number): Promise<HabitLog[]> {
+    return await db.select().from(habitLogs).where(eq(habitLogs.habitId, habitId));
+  }
+
+  async toggleHabitLog(habitId: number, date: string, completed: boolean): Promise<HabitLog> {
+    const [existing] = await db
+      .select()
+      .from(habitLogs)
+      .where(and(eq(habitLogs.habitId, habitId), eq(habitLogs.date, date)));
+
+    if (existing) {
+      const [updated] = await db
+        .update(habitLogs)
+        .set({ completed })
+        .where(eq(habitLogs.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [inserted] = await db
+        .insert(habitLogs)
+        .values({ habitId, date, completed })
+        .returning();
+      return inserted;
+    }
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
