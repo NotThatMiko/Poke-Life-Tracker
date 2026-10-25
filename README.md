@@ -5,8 +5,7 @@ Habit tracker (frontend + API) with a PostgreSQL database.
 ## Hébergement
 
 L'application complète nécessite un serveur Node.js et une base PostgreSQL.
-GitHub Pages héberge uniquement des fichiers statiques : il ne peut pas exécuter
-l'API, gérer les comptes ou stocker les données PostgreSQL.
+
 Le déploiement Docker ci-dessous permet d'héberger l'application complète.
 
 ## Ce qu'il faut pour la synchro téléphone + homelab
