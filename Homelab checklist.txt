@@ -1,0 +1,54 @@
+Homelab Checklist - Pixel Heart Tracker
+=======================================
+
+Avant exposition reseau
+-----------------------
+[ ] Docker / Docker Compose installes
+[ ] `docker compose up -d --build app` fonctionne en local
+[ ] L'app ouvre bien sur `http://localhost:PORT`
+[ ] Le login marche pour:
+    - admiko / mikorazon (admin)
+    - miko / mikokoro (user)
+[ ] Le compte du copain est cree via Sign up
+
+Securite (important)
+--------------------
+[ ] `SESSION_SECRET` defini (valeur longue et aleatoire)
+[ ] `SESSION_COOKIE_SECURE=true` si HTTPS/Tailscale
+[ ] `TRUST_PROXY=true` si reverse proxy
+[ ] App NON exposee brute sur Internet
+[ ] Acces via Tailscale OU reverse proxy HTTPS (Caddy/Traefik/Nginx)
+[ ] Aucun montage Docker socket (`/var/run/docker.sock`) dans le conteneur
+[ ] Aucun volume systeme sensible monte dans le conteneur
+[ ] Conteneur sans privileges inutiles
+
+Donnees / backup
+----------------
+[ ] Les donnees existantes sont bien sur le compte admin (migration legacy)
+[ ] Test d'export JSON depuis le menu rouage (tracker)
+[ ] Test d'import JSON sur un compte de test
+[ ] Test d'import Loop/Habitudes CSV ZIP sur un compte de test
+[ ] Strategie de backup PostgreSQL definie (volume `postgres_data`)
+[ ] Sauvegarde reguliere planifiee (cron / snapshot / restic / etc.)
+
+Reseau / acces mobile
+---------------------
+[ ] Port choisi libre (`5000` ou mapping `5001:5000`)
+[ ] Acces depuis smartphone sur le meme reseau teste
+[ ] Si acces externe: HTTPS valide ou Tailscale actif
+[ ] Session persistante verifiee sur appareil de confiance
+
+Maintenance
+-----------
+[ ] Procedure de rebuild connue:
+    `docker compose up -d --build app`
+[ ] Procedure de logs connue:
+    `docker compose logs -f app`
+[ ] Procedure de rollback / restauration DB documentee
+[ ] Mises a jour Docker images / app prevues regulierement
+
+Optionnel (mais utile)
+----------------------
+[ ] Changer les mots de passe seed apres installation
+[ ] Desactiver / limiter Sign up une fois les comptes crees (si besoin)
+[ ] Ajouter une UI admin de gestion des comptes (plus tard)

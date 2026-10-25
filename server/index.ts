@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { bootstrapAuthData, setupAuth } from "./auth";
 
 const app = express();
 const httpServer = createServer(app);
@@ -14,6 +15,7 @@ declare module "http" {
 
 app.use(
   express.json({
+    limit: process.env.JSON_BODY_LIMIT ?? "20mb",
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
@@ -21,6 +23,7 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+setupAuth(app);
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -48,7 +51,8 @@ app.use((req, res, next) => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
+      const isSensitiveAuthPath = path.startsWith("/api/auth/");
+      if (capturedJsonResponse && !isSensitiveAuthPath) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
 
@@ -60,6 +64,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  await bootstrapAuthData();
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

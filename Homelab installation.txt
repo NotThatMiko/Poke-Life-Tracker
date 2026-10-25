@@ -1,0 +1,134 @@
+Homelab installation - Pixel Heart Tracker
+=========================================
+
+Objectif
+--------
+Installer l'application sur un homelab (Docker), avec 3 comptes max (admin + 2 utilisateurs),
+donnees strictement isolees par utilisateur, sessions persistantes sur les appareils de confiance.
+
+Comptes (config actuelle)
+-------------------------
+Compte admin (cree automatiquement au premier demarrage):
+- ID: admiko
+- Mot de passe: mikorazon
+
+Compte utilisateur seed (cree automatiquement si absent):
+- ID: miko
+- Mot de passe: mikokoro
+
+Important:
+- Le pseudo n'est PAS sensible a la casse (Emma = emma).
+- L'inscription publique est limitee a 3 comptes total sur cette instance (admin inclus).
+  Donc, avec l'admin + miko deja presents, il reste 1 inscription possible (ton copain).
+
+Prerequis
+---------
+- Docker + Docker Compose
+- Un reverse proxy HTTPS OU Tailscale (fortement recommande)
+- Un mot de passe fort pour l'utilisateur de ton copain
+
+Variables d'environnement recommandees
+--------------------------------------
+Dans docker-compose.yml (ou un .env charge par ton compose), definir au minimum:
+
+- SESSION_SECRET = une longue valeur aleatoire (obligatoire en pratique)
+- SESSION_COOKIE_SECURE = true (si HTTPS/Tailscale)
+- TRUST_PROXY = true (si reverse proxy)
+
+Optionnel:
+- ADMIN_USERNAME (par defaut: admiko)
+- ADMIN_PASSWORD (par defaut: mikorazon)
+- MAX_TOTAL_USERS (par defaut: 3)
+- DEFAULT_USER_USERNAME (par defaut: miko)
+- DEFAULT_USER_PASSWORD (par defaut: mikokoro)
+
+Exemple de SESSION_SECRET (genere une vraie valeur aleatoire, ne pas reutiliser cet exemple):
+- 5f4f2ab1c31d4f2f8a4f5c8b9d0e1f2a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2
+
+Installation (Docker)
+---------------------
+1. Ouvrir un terminal dans le dossier du projet.
+
+2. Lancer l'application:
+   docker compose up -d --build app
+
+3. Ouvrir l'app:
+   - local: http://localhost:5000 (ou 5001 si tu as change le port)
+   - reseau local: http://IP_DU_HOMELAB:PORT
+
+4. Premiere ouverture:
+   - connecter l'admin avec admiko / mikorazon
+   - creer le compte du copain via Sign up (1 seule inscription dispo si limite a 3 avec admin + miko pre-seedes)
+
+Notes de migration (important)
+------------------------------
+Au premier demarrage avec la version multi-utilisateur:
+- le compte admin est cree automatiquement
+- les anciennes donnees existantes (habits, logs, pokegame) sont migrees vers l'admin
+- cela preserve tes donnees actuelles sur le compte admiko
+
+Sessions / reconnexion
+----------------------
+- Les sessions sont stockees cote serveur (PostgreSQL) via cookie de session.
+- L'utilisateur reste connecte sur le meme appareil (cookie persistant ~30 jours, renouvele a l'usage).
+- Le cookie est HttpOnly + SameSite=Lax.
+
+Recommandations Homelab (securite)
+----------------------------------
+1. Ne PAS exposer l'app brute sur Internet sans protection.
+   - Recommande: Tailscale
+   - Ou reverse proxy HTTPS (Caddy / Traefik / Nginx)
+
+2. Activer HTTPS et mettre:
+   - SESSION_COOKIE_SECURE=true
+
+3. Utiliser un SESSION_SECRET fort et unique.
+
+4. Ne jamais monter le Docker socket dans ce conteneur.
+   - Pas de /var/run/docker.sock
+
+5. Ne pas donner d'acces shell/systeme a ce conteneur.
+   - Pas de volumes systeme sensibles
+   - Pas de privileges etendus inutiles
+
+6. Faire des sauvegardes de la base PostgreSQL.
+   - Au minimum une sauvegarde reguliere du volume postgres_data
+
+7. Mettre des mots de passe forts pour tous les comptes.
+
+8. Mettre a jour l'application et les images Docker regulierement.
+
+Operations utiles
+-----------------
+Rebuild / restart:
+- docker compose up -d --build app
+
+Voir les logs:
+- docker compose logs -f app
+
+Arreter:
+- docker compose down
+
+Repartir de zero (ATTENTION: supprime aussi la DB):
+- docker compose down -v
+
+Depannage rapide
+----------------
+- Si le port est deja pris (ex: 5000), changer le mapping dans docker-compose.yml:
+  - "5001:5000"
+- Puis relancer:
+  - docker compose down
+  - docker compose up -d
+
+A propos des comptes
+--------------------
+- Les Dev Tools Pokegame sont reserves au compte admin uniquement.
+- Les donnees sont isolees par utilisateur (habits, logs, pokegame, dex, etc.).
+- Un utilisateur A ne doit pas pouvoir lire/modifier les donnees de B via l'API.
+
+Ameliorations possibles (plus tard)
+-----------------------------------
+- Interface admin pour creer / desactiver des comptes
+- Changement de mot de passe admin depuis un panneau admin dedie
+- Politique de mot de passe plus stricte
+- 2FA (si un jour besoin)
